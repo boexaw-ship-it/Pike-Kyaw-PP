@@ -1,7 +1,7 @@
 # ၅ ပေ ၉ လက်မ ပိုက်ကျော် ပြိုင်ပွဲ Website
 
 ## ရလဒ်ထည့်နည်း
-`data/data.json` ရဲ့ `results` ထဲမှာ တစ်ပွဲ တစ်ကြောင်း ထည့်ပြီး commit လုပ်ရုံ။ Vercel က ၁–၂ မိနစ်မှာ update လုပ်ပေးမယ်။
+`data/group-results.json` (အုပ်စုပွဲ) နှင့် `data/knockout-results.json` (K1–K16) ထဲမှာ တစ်ပွဲ တစ်ကြောင်း ထည့်ပြီး commit လုပ်ရုံ။ Vercel က ၁–၂ မိနစ်မှာ update လုပ်ပေးမယ်။
 
 - အုပ်စုပွဲ (၁ set): `{ "id": "A-1v2", "sets": [[21, 15]] }`  (A-1v2 = A အုပ်စု ၁ နံပါတ် vs ၂ နံပါတ်)
 - အုပ်စုပွဲ စီစဉ်ချက်: 1v2, 3v4, 1v3, 2v4, 1v4, 2v3
@@ -12,7 +12,7 @@
 JSON မှားရင် build ကျပြီး site အဟောင်းပဲ ဆက်ရှိမယ်။ မှားတဲ့အကြောင်းကို Vercel log မှာ ဖတ်နိုင်တယ်။
 
 ## အသင်းအမည်/ဓာတ်ပုံ
-`teams` ထဲမှာ `name` နှင့် `players` ပြင်ပါ။ ဓာတ်ပုံကို `public/photos/` ထဲထည့်ပြီး `"photo": "/photos/ko-ko.webp"` လို့ ရေးပါ။
+`data/teams.json` ထဲမှာ `name` နှင့် `players` ပြင်ပါ။ ဓာတ်ပုံကို `public/photos/` ထဲထည့်ပြီး `"photos": ["/photos/a.webp","/photos/b.webp"]` လို့ ရေးပါ။
 
 ## Run / Deploy
 ```
