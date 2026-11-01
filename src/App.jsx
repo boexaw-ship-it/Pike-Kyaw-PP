@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import data from "../data/data.json";
+import data from "./data.js";
 import { GROUPS, KO, STAGES, groupMatches, resolveKO, resultMap } from "./logic.js";
 
 const teamById = Object.fromEntries(data.teams.map((t) => [t.id, t]));
