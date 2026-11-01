@@ -9,10 +9,7 @@ const errs = [];
 const err = (m) => errs.push("❌ " + m);
 
 const ids = new Set(teams.map((t) => t.id));
-for (const g of "ABCDEFGH") {
-  const n = teams.filter((t) => t.group === g).length;
-  if (n < 3 || n > 4) err(`အုပ်စု ${g}: အသင်း ၃ သို့ ၄ သင်းရှိရမယ် (အခု ${n})`);
-}
+for (const g of "ABCDEFGH") { const n = teams.filter((t) => t.group === g).length; if (n < 3 || n > 4) err(`အုပ်စု ${g}: အသင်း ၃ သို့ ၄ သင်းရှိရမယ် (အခု ${n})`); }
 if (ids.size !== teams.length) err("teams.json: အသင်း id ထပ်နေတယ်");
 
 const gm = new Set(groupMatches(teams).map((m) => m.id));
