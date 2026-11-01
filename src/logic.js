@@ -25,9 +25,13 @@ export const KO = [
   ["TP", L(13), L(14)], ["F", W(13), W(14)],
 ].map(([stage, a, b], i) => ({ id: `K${i + 1}`, no: i + 1, stage, a, b }));
 
-export function groupMatches() {
+// အုပ်စုတစ်ခုမှာ အသင်း ၃ သင်း (သို့) ၄ သင်း ရှိနိုင်တယ်
+export function groupMatches(teams) {
+  const ids = new Set(teams.map((t) => t.id));
   return GROUPS.flatMap((grp) =>
-    PAIRS.map(([i, j]) => ({ id: `${grp}-${i}v${j}`, group: grp, a: `${grp}${i}`, b: `${grp}${j}` }))
+    PAIRS.filter(([i, j]) => ids.has(`${grp}${i}`) && ids.has(`${grp}${j}`)).map(([i, j]) => ({
+      id: `${grp}-${i}v${j}`, group: grp, a: `${grp}${i}`, b: `${grp}${j}`,
+    }))
   );
 }
 
@@ -50,7 +54,7 @@ export function standings(grp, teams, rmap) {
     teams.filter((t) => t.group === grp).map((t) => [t.id, { id: t.id, p: 0, w: 0, l: 0, pts: 0, sc: 0, co: 0 }])
   );
   let done = 0;
-  const ms = groupMatches().filter((m) => m.group === grp);
+  const ms = groupMatches(teams).filter((m) => m.group === grp);
   for (const m of ms) {
     const r = rmap[m.id];
     if (!r) continue;
