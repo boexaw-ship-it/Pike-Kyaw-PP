@@ -1,14 +1,19 @@
 import React, { useMemo, useState } from "react";
 import data from "./data.js";
-import { GROUPS, KO, STAGES, groupMatches, resolveKO, resultMap, tally } from "./logic.js";
+import { GROUPS, KO, STAGES, groupMatches, resolveKO, resultMap } from "./logic.js";
 
 const teamById = Object.fromEntries(data.teams.map((t) => [t.id, t]));
 const name = (id, fallback) => (id ? teamById[id].name : fallback);
 const TABS = [["home", "ရလဒ်"], ["groups", "အုပ်စု"], ["bracket", "Bracket"], ["teams", "အသင်းများ"]];
 
-function Score({ t }) {
+function Score({ t, a, b }) {
   if (!t) return <span className="vs">vs</span>;
-  return <span className="score">{t.pa}–{t.pb}</span>;
+  return (
+    <span className="score">
+      {t.pa}–{t.pb}
+      {a != null && <small>{a}–{b}</small>}
+    </span>
+  );
 }
 
 function MatchRow({ ta, tb, la, lb, res, t, ko }) {
@@ -16,11 +21,7 @@ function MatchRow({ ta, tb, la, lb, res, t, ko }) {
   return (
     <li className="match">
       <span className={w === "a" ? "win" : ""}>{name(ta, la)}</span>
-      {ko && t ? (
-        <span className="score">{t.a}–{t.b}<small>{res.sets.map((s) => s.join("-")).join(", ")}</small></span>
-      ) : (
-        <Score t={t} />
-      )}
+      {ko && t ? <span className="score">{t.a}–{t.b}<small>{res.sets.map((s) => s.join("-")).join(", ")}</small></span> : <Score t={t} />}
       <span className={"r " + (w === "b" ? "win" : "")}>{name(tb, lb)}</span>
     </li>
   );
@@ -34,7 +35,7 @@ function Home({ ko, rmap }) {
     const k = ko[id];
     if (k) return { ...k, ko: true };
     const m = gm.find((x) => x.id === id);
-    return { ta: m.a, tb: m.b, res: rmap[id], t: tally(rmap[id]?.sets), ko: false };
+    return { ta: m.a, tb: m.b, res: rmap[id], t: { ...tallyOf(rmap[id]) }, ko: false };
   };
   return (
     <>
@@ -50,6 +51,8 @@ function Home({ ko, rmap }) {
     </>
   );
 }
+import { tally } from "./logic.js";
+const tallyOf = (r) => tally(r?.sets);
 
 function Groups({ st }) {
   return GROUPS.map((g) => (
@@ -99,9 +102,7 @@ function Teams() {
   const [g, setG] = useState("A");
   return (
     <>
-      <div className="chips">
-        {GROUPS.map((x) => <button key={x} className={x === g ? "on" : ""} onClick={() => setG(x)}>{x}</button>)}
-      </div>
+      <div className="chips">{GROUPS.map((x) => <button key={x} className={x === g ? "on" : ""} onClick={() => setG(x)}>{x}</button>)}</div>
       {data.teams.filter((t) => t.group === g).map((t) => (
         <section className="card" key={t.id}>
           <h3>{t.name}</h3>
