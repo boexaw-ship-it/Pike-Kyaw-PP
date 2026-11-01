@@ -1,28 +1,27 @@
 import React, { useMemo, useState } from "react";
 import data from "./data.js";
-import { GROUPS, KO, STAGES, groupMatches, resolveKO, resultMap } from "./logic.js";
+import { GROUPS, KO, STAGES, groupMatches, resolveKO, resultMap, tally } from "./logic.js";
 
 const teamById = Object.fromEntries(data.teams.map((t) => [t.id, t]));
 const name = (id, fallback) => (id ? teamById[id].name : fallback);
-const TABS = [["home", "ရလဒ်"], ["groups", "အုပ်စု"], ["bracket", "Bracket"], ["teams", "အသင်းများ"]];
+const TABS = [["home", "ရလဒ်"], ["fixtures", "ပွဲစဉ်"], ["groups", "အုပ်စု"], ["bracket", "Bracket"], ["teams", "အသင်းများ"]];
+const idStyle = { gridColumn: "1 / -1", fontSize: ".7rem", color: "var(--mute)", fontStyle: "normal", marginTop: "-6px" };
 
-function Score({ t, a, b }) {
-  if (!t) return <span className="vs">vs</span>;
-  return (
-    <span className="score">
-      {t.pa}–{t.pb}
-      {a != null && <small>{a}–{b}</small>}
-    </span>
-  );
-}
-
-function MatchRow({ ta, tb, la, lb, res, t, ko }) {
+function MatchRow({ ta, tb, la, lb, res, t, ko, mid }) {
   const w = t?.winner;
   return (
     <li className="match">
       <span className={w === "a" ? "win" : ""}>{name(ta, la)}</span>
-      {ko && t ? <span className="score">{t.a}–{t.b}<small>{res.sets.map((s) => s.join("-")).join(", ")}</small></span> : <Score t={t} />}
+      {t ? (
+        <span className="score">
+          {ko ? `${t.a}–${t.b}` : `${t.pa}–${t.pb}`}
+          {ko && <small>{res.sets.map((s) => s.join("-")).join(", ")}</small>}
+        </span>
+      ) : (
+        <span className="vs">vs</span>
+      )}
       <span className={"r " + (w === "b" ? "win" : "")}>{name(tb, lb)}</span>
+      {mid && <em style={idStyle}>{mid}</em>}
     </li>
   );
 }
@@ -35,7 +34,7 @@ function Home({ ko, rmap }) {
     const k = ko[id];
     if (k) return { ...k, ko: true };
     const m = gm.find((x) => x.id === id);
-    return { ta: m.a, tb: m.b, res: rmap[id], t: { ...tallyOf(rmap[id]) }, ko: false };
+    return { ta: m.a, tb: m.b, res: rmap[id], t: tally(rmap[id]?.sets), ko: false };
   };
   return (
     <>
@@ -51,8 +50,32 @@ function Home({ ko, rmap }) {
     </>
   );
 }
-import { tally } from "./logic.js";
-const tallyOf = (r) => tally(r?.sets);
+
+function GroupChips({ g, setG }) {
+  return (
+    <div className="chips">
+      {GROUPS.map((x) => <button key={x} className={x === g ? "on" : ""} onClick={() => setG(x)}>{x}</button>)}
+    </div>
+  );
+}
+
+// အုပ်စုပွဲ အားလုံး (ရလဒ်မရှိသေးရင် vs၊ ရှိရင် ရမှတ်ပေါ်မယ်)
+function Fixtures({ rmap }) {
+  const [g, setG] = useState("A");
+  const ms = groupMatches(data.teams).filter((m) => m.group === g);
+  const done = ms.filter((m) => rmap[m.id]).length;
+  return (
+    <>
+      <GroupChips g={g} setG={setG} />
+      <h2>အုပ်စု {g} ပွဲစဉ် ({done}/{ms.length} ပြီး)</h2>
+      <ul className="list">
+        {ms.map((m, i) => (
+          <MatchRow key={m.id} ta={m.a} tb={m.b} res={rmap[m.id]} t={rmap[m.id] ? tally(rmap[m.id].sets) : null} mid={`ပွဲ ${i + 1} · ${m.id}`} />
+        ))}
+      </ul>
+    </>
+  );
+}
 
 function Groups({ st }) {
   return GROUPS.map((g) => (
@@ -102,7 +125,7 @@ function Teams() {
   const [g, setG] = useState("A");
   return (
     <>
-      <div className="chips">{GROUPS.map((x) => <button key={x} className={x === g ? "on" : ""} onClick={() => setG(x)}>{x}</button>)}</div>
+      <GroupChips g={g} setG={setG} />
       {data.teams.filter((t) => t.group === g).map((t) => (
         <section className="card" key={t.id}>
           <h3>{t.name}</h3>
@@ -136,6 +159,7 @@ export default function App() {
       </header>
       <main>
         {tab === "home" && <Home ko={ko} rmap={rmap} />}
+        {tab === "fixtures" && <Fixtures rmap={rmap} />}
         {tab === "groups" && <Groups st={st} />}
         {tab === "bracket" && <Bracket ko={ko} />}
         {tab === "teams" && <Teams />}
